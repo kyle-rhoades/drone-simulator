@@ -1,1 +1,86 @@
-<p>Hello</p></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Simulator</title>
+  <script crossorigin defer src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script crossorigin defer src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script crossorigin defer src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin defer src="https://cdn.jsdelivr.net/npm/lucide-react@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="root" class="p-4"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+
+    const DroneSimulator = () => {
+      const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
+      const [logs, setLogs] = useState([]);
+
+      const obstacles = [
+        { x: 2, y: 2, width: 3, height: 2 },
+        { x: -5, y: 4, width: 3, height: 2 },
+        { x: 1, y: -3, width: 3, height: 2 },
+        { x: -2, y: -1, width: 3, height: 2 },
+        { x: 5, y: 5, width: 3, height: 2 },
+        { x: -4, y: -5, width: 3, height: 2 }
+      ];
+
+      const addLog = (message) => {
+        setLogs((prev) => [message, ...prev].slice(0, 5));
+      };
+
+      const checkCollision = (newPos) => {
+        return obstacles.some((obstacle) =>
+          newPos.x >= obstacle.x &&
+          newPos.x < obstacle.x + obstacle.width &&
+          newPos.y >= obstacle.y &&
+          newPos.y < obstacle.y + obstacle.height
+        );
+      };
+
+      const moveDrone = (dx, dy, dz) => {
+        const newPosition = { x: position.x + dx, y: position.y + dy, z: position.z + dz };
+
+        if (checkCollision(newPosition)) {
+          addLog("Collision detected! Cannot move.");
+          return;
+        }
+
+        setPosition(newPosition);
+        addLog(`Moved to (${newPosition.x}, ${newPosition.y}, ${newPosition.z})`);
+      };
+
+      const resetDrone = () => {
+        setPosition({ x: 0, y: 0, z: 0 });
+        addLog("Drone reset to initial position");
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto bg-white rounded shadow p-4">
+          <h1 className="text-xl font-bold mb-4">Drone Classroom Navigation Simulator</h1>
+          <div className="relative border bg-gray-100 h-64 mb-4">
+            <svg className="absolute transition-transform"
+              style={{
+                left: `${50 + position.x * 20}%`,
+                top: `${50 - position.y * 20}%`,
+                transform: 'translate(-50%, -50%)'
+              }}>
+              <circle cx="50" cy="50" r="10" fill="blue" />
+            </svg>
+          </div>
+          <div className="flex space-x-4">
+            <div>
+              <p>Position: ({position.x}, {position.y}, {position.z})</p>
+              <div className="grid grid-cols-3 gap-2">
+                <button onClick={() => moveDrone(0, 1, 0)}>↑</button>
+                <button onClick={() => moveDrone(-1, 0, 0)}>←</button>
+              </div>
+            </div>
+            Logs!!
+          </div>
+          < logs??></>
+        </div>
+      );
