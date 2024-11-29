@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drone Simulator</title>
-  <script crossorigin defer src="https://unpkg.com/react@17/umd/react.development.js"></script>
-  <script crossorigin defer src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-  <script crossorigin defer src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin defer src="https://cdn.jsdelivr.net/npm/lucide-react@latest"></script>
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <!-- Babel for JSX transformation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <div id="root" class="p-4"></div>
-  
+<body class="bg-gray-100 text-gray-800">
+  <div id="root" class="p-6"></div>
+
   <script type="text/babel">
     const { useState } = React;
 
@@ -25,11 +28,11 @@
         { x: 1, y: -3, width: 3, height: 2 },
         { x: -2, y: -1, width: 3, height: 2 },
         { x: 5, y: 5, width: 3, height: 2 },
-        { x: -4, y: -5, width: 3, height: 2 }
+        { x: -4, y: -5, width: 3, height: 2 },
       ];
 
       const addLog = (message) => {
-        setLogs((prev) => [message, ...prev].slice(0, 5));
+        setLogs((prevLogs) => [message, ...prevLogs].slice(0, 5));
       };
 
       const checkCollision = (newPos) => {
@@ -42,7 +45,11 @@
       };
 
       const moveDrone = (dx, dy, dz) => {
-        const newPosition = { x: position.x + dx, y: position.y + dy, z: position.z + dz };
+        const newPosition = {
+          x: position.x + dx,
+          y: position.y + dy,
+          z: position.z + dz,
+        };
 
         if (checkCollision(newPosition)) {
           addLog("Collision detected! Cannot move.");
@@ -59,28 +66,97 @@
       };
 
       return (
-        <div className="max-w-4xl mx-auto bg-white rounded shadow p-4">
+        <div className="max-w-4xl mx-auto bg-white rounded shadow p-6">
           <h1 className="text-xl font-bold mb-4">Drone Classroom Navigation Simulator</h1>
-          <div className="relative border bg-gray-100 h-64 mb-4">
-            <svg className="absolute transition-transform"
+
+          {/* Drone Visualizer */}
+          <div className="relative border bg-gray-100 h-64 mb-6">
+            <div
+              className="absolute w-8 h-8 bg-blue-500 rounded-full"
               style={{
-                left: `${50 + position.x * 20}%`,
-                top: `${50 - position.y * 20}%`,
-                transform: 'translate(-50%, -50%)'
-              }}>
-              <circle cx="50" cy="50" r="10" fill="blue" />
-            </svg>
+                left: `${50 + position.x * 10}%`,
+                top: `${50 - position.y * 10}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            ></div>
+            {obstacles.map((obstacle, index) => (
+              <div
+                key={index}
+                className="absolute bg-red-500 opacity-50"
+                style={{
+                  left: `${50 + obstacle.x * 10}%`,
+                  top: `${50 - obstacle.y * 10}%`,
+                  width: `${obstacle.width * 10}%`,
+                  height: `${obstacle.height * 10}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              ></div>
+            ))}
           </div>
-          <div className="flex space-x-4">
-            <div>
-              <p>Position: ({position.x}, {position.y}, {position.z})</p>
-              <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => moveDrone(0, 1, 0)}>↑</button>
-                <button onClick={() => moveDrone(-1, 0, 0)}>←</button>
-              </div>
+
+          {/* Control Panel */}
+          <div className="mb-6">
+            <p>Position: ({position.x}, {position.y}, {position.z})</p>
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(0, 1, 0)}
+              >
+                ↑
+              </button>
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(-1, 0, 0)}
+              >
+                ←
+              </button>
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(1, 0, 0)}
+              >
+                →
+              </button>
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(0, -1, 0)}
+              >
+                ↓
+              </button>
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(0, 0, 1)}
+              >
+                Up
+              </button>
+              <button
+                className="bg-blue-500 text-white rounded px-4 py-2"
+                onClick={() => moveDrone(0, 0, -1)}
+              >
+                Down
+              </button>
             </div>
-            Logs!!
+            <button
+              className="mt-4 bg-red-500 text-white rounded px-4 py-2"
+              onClick={resetDrone}
+            >
+              Reset Drone
+            </button>
           </div>
-          < logs??></>
+
+          {/* Logs */}
+          <div>
+            <h2 className="font-bold mb-2">Logs:</h2>
+            <ul className="list-disc ml-4">
+              {logs.map((log, index) => (
+                <li key={index}>{log}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       );
+    };
+
+    ReactDOM.render(<DroneSimulator />, document.getElementById("root"));
+  </script>
+</body>
+</html>
